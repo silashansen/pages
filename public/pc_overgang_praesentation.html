@@ -299,6 +299,73 @@
       gap: 0.2rem;
     }
 
+    .deadline-splash {
+      margin-top: 1.1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 1.1rem;
+      background: radial-gradient(circle at top left, rgba(245, 158, 11, 0.22), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.18), transparent 60%),
+                  linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .deadline-splash-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.9rem;
+      min-width: 0;
+    }
+
+    .deadline-icon {
+      width: 2.45rem;
+      height: 2.45rem;
+      border-radius: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 30%, rgba(253, 230, 138, 1), rgba(245, 158, 11, 1));
+      color: rgba(17, 24, 39, 1);
+      font-size: 1.2rem;
+      flex: 0 0 auto;
+      box-shadow: 0 0 22px rgba(245, 158, 11, 0.35);
+    }
+
+    .deadline-title {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(253, 230, 138, 0.92);
+    }
+
+    .deadline-main {
+      font-size: clamp(1.55rem, 2.6vw, 2.15rem);
+      font-weight: 750;
+      line-height: 1.05;
+      margin-top: 0.35rem;
+    }
+
+    .deadline-sub {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 0.35rem;
+      line-height: 1.4;
+      max-width: 46rem;
+    }
+
+    .deadline-splash-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      gap: 0.35rem;
+      flex: 0 0 auto;
+    }
+
     .timeline {
       position: relative;
       display: flex;
@@ -554,6 +621,14 @@
       .columns {
         grid-template-columns: minmax(0, 1fr);
       }
+      .deadline-splash {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .deadline-splash-right {
+        align-items: flex-start;
+        text-align: left;
+      }
       .timeline {
         flex-direction: column;
         padding-left: 1.2rem;
@@ -631,6 +706,25 @@
               værd at få med, når du flytter til en <span class="highlight">ny arbejds-PC</span>.
               <span class="highlight">Kopiér til H:\</span> først – det er din mellemstation under skiftet.
             </p>
+
+            <div class="deadline-splash" role="note" aria-label="Deadline for overførsel til H-drev">
+              <div class="deadline-splash-left">
+                <div class="deadline-icon" aria-hidden="true">⏰</div>
+                <div style="min-width: 0;">
+                  <div class="deadline-title">Deadline for overførsel til H:\</div>
+                  <div class="deadline-main">27. februar kl. 16:00</div>
+                  <div class="deadline-sub">Efter deadline bliver H: read-only – du kan ikke kopiere nye filer ind.</div>
+                </div>
+              </div>
+              <div class="deadline-splash-right" aria-label="Næste milepæl">
+                <div class="code-chip" aria-label="H-drev">
+                  <span class="dot"></span>
+                  <span>H:\</span>
+                  <span>mellemstation</span>
+                </div>
+                <div class="deadline-sub" style="margin-top: 0;">Nye PC’er udleveres 2. marts.</div>
+              </div>
+            </div>
 
             <div class="columns" style="margin-top: 1.4rem;">
               <div>
