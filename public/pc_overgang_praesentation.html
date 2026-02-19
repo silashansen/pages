@@ -630,6 +630,12 @@
       color: var(--muted);
     }
 
+    .footer-hint-mobile {
+      display: none;
+      font-size: 0.78rem;
+      color: rgba(253, 230, 138, 0.88);
+    }
+
     .kbd-inline {
       border-radius: 0.5rem;
       border: 1px solid rgba(148, 163, 184, 0.5);
@@ -639,11 +645,37 @@
 
     /* Responsive tweaks */
     @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
       .frame {
         height: auto;
       }
+      .slides-viewport {
+        overflow: visible;
+        border-radius: 0;
+      }
+      .slide {
+        position: relative;
+        inset: auto;
+        padding: 0;
+        display: none;
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+        transition: none;
+      }
+      .slide.active {
+        display: block;
+      }
+      .slide.exiting-left,
+      .slide.exiting-right {
+        display: none;
+      }
       .slide-card {
         padding: 1.4rem 1.3rem;
+        height: auto;
+        overflow: visible;
       }
       .slides-container {
         padding: 1.2rem 1.2rem 0.8rem;
@@ -684,11 +716,16 @@
       .timeline-step:not(:last-child)::after {
         display: none;
       }
+
+      .footer-hint-mobile {
+        display: inline;
+      }
     }
 
     @media (max-width: 640px) {
       body {
         padding: 0.8rem;
+        overflow: auto;
       }
       .frame-header {
         padding-inline: 0.9rem;
@@ -1297,6 +1334,7 @@
 
         <div class="controls-right">
           <span class="footer-hint">Brug piletasterne eller Space til at skifte slide</span>
+          <span class="footer-hint-mobile">Tip: På små skærme kan du scrolle. Bedst på desktop.</span>
           <div class="dot-row" id="dot-row" aria-hidden="true"></div>
           <button class="btn" id="prev-btn" type="button">
             <span class="btn-icon">←</span>
