@@ -680,6 +680,32 @@
       .slides-container {
         padding: 1.2rem 1.2rem 0.8rem;
       }
+      .controls-row {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        padding: 0.75rem 0.9rem;
+        margin-top: 0.9rem;
+        border-radius: 1rem;
+        background: rgba(2, 6, 23, 0.78);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        backdrop-filter: blur(14px);
+      }
+      .controls-right {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .footer-hint {
+        display: none;
+      }
+      .dot-row {
+        display: none;
+      }
+      #prev-btn,
+      #next-btn {
+        flex: 1;
+        justify-content: center;
+      }
       .columns {
         grid-template-columns: minmax(0, 1fr);
       }
