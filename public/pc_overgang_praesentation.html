@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <title>Overgang til ny PC – hvad skal kopieres?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #050816;
+      --bg-alt: #0b1020;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.2);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --card: #111827;
+      --radius-xl: 1.5rem;
+      --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.65);
+      --transition-fast: 220ms ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      width: 100vw;
+      display: block;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .frame {
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.14), transparent 60%),
+                  var(--bg-alt);
+      border-radius: 0;
+      box-shadow: none;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .frame-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1.6rem 0.6rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.7));
+      z-index: 10;
+    }
+
+    .frame-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #bbf7d0, #22c55e);
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.8);
+    }
+
+    .frame-header-right {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      align-items: center;
+    }
+
+    .kbd {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 0.15rem 0.5rem;
+      font-size: 0.7rem;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9));
+    }
+
+    .slides-container {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      padding: 2.5rem 4rem 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slides-viewport {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      border-radius: 1.2rem;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 1.8rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.4rem;
+      opacity: 0;
+      transform: translateX(45px) translateY(6px) scale(0.98);
+      pointer-events: none;
+      transition:
+        opacity 360ms var(--transition-fast),
+        transform 420ms var(--transition-fast);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .slide.exiting-left {
+      opacity: 0;
+      transform: translateX(-45px) translateY(-4px) scale(0.98);
+    }
+
+    .slide.exiting-right {
+      opacity: 0;
+      transform: translateX(60px) translateY(4px) scale(0.98);
+    }
+
+    .slide-card {
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.24), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.18), transparent 55%),
+                  linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96));
+      border-radius: 1.2rem;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      padding: 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(248, 250, 252, 0.08), transparent 55%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .eyebrow {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    h1, h2 {
+      font-size: clamp(2.2rem, 3.5vw, 3rem);
+      margin-bottom: 0.6rem;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 5vw, 4.2rem);
+      line-height: 1.05;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: clamp(1.7rem, 2.6vw, 2rem);
+      margin-bottom: 0.2rem;
+    }
+
+    .subtitle {
+      font-size: 1.35rem;
+      color: var(--muted);
+      max-width: 70rem;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      color: #c4b5fd;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+    }
+
+    .pill {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95));
+      color: var(--muted);
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 1.8rem;
+      margin-top: 1rem;
+      align-items: flex-start;
+    }
+
+    .list {
+      list-style: none;
+      display: grid;
+      gap: 1.1rem;
+      font-size: 1.25rem;
+    }
+
+    .list li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .list-bullet {
+      width: 0.55rem;
+      height: 0.55rem;
+      margin-top: 0.35rem;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #e0e7ff, #4f46e5);
+      box-shadow: 0 0 16px rgba(79, 70, 229, 0.7);
+    }
+
+    .list-strong {
+      font-weight: 550;
+      color: #e5e7eb;
+    }
+
+    .list-muted {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .code-chip {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.7rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 0 18px rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #e5e7eb;
+    }
+
+    .code-chip .dot {
+      width: 0.32rem;
+      height: 0.32rem;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .tag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.7rem;
+      margin-top: 0.8rem;
+    }
+
+    .tag-card {
+      padding: 0.7rem 0.9rem;
+      border-radius: 0.9rem;
+      background: linear-gradient(to bottom right, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .tag-label {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .tag-main {
+      font-weight: 520;
+    }
+
+    .note-box {
+      font-size: 0.86rem;
+      padding: 0.8rem 0.9rem;
+      border-radius: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+    }
+
+    .note-box strong {
+      color: #e5e7eb;
+      font-weight: 550;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding-top: 1rem;
+    }
+
+    .controls-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .step-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 0.18rem 0.75rem;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .progress-track {
+      position: relative;
+      flex: 1;
+      height: 0.3rem;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.4);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      transform-origin: left;
+      transform: scaleX(0);
+      background: linear-gradient(to right, #4f46e5, #22d3ee);
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 1));
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      transition: transform 120ms ease-out, box-shadow 120ms ease-out, border-color 120ms ease-out, background 120ms ease-out;
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.4), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.4), transparent 60%),
+                  linear-gradient(to right, #4f46e5, #06b6d4);
+      border-color: rgba(191, 219, 254, 0.9);
+      box-shadow: 0 14px 30px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.7);
+      border-color: rgba(191, 219, 254, 0.8);
+    }
+
+    .btn-primary:not(:disabled):hover {
+      box-shadow: 0 18px 36px rgba(56, 189, 248, 0.6);
+    }
+
+    .dot-row {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: 0.6rem;
+    }
+
+    .dot-nav {
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      opacity: 0.6;
+      transition: 160ms ease-out;
+    }
+
+    .dot-nav.active {
+      width: 0.9rem;
+      border-radius: 999px;
+      background: linear-gradient(to right, #4f46e5, #22c55e);
+      opacity: 1;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.9);
+    }
+
+    .footer-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .kbd-inline {
+      border-radius: 0.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 0.05rem 0.3rem;
+      font-size: 0.7rem;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .frame {
+        height: auto;
+      }
+      .slide-card {
+        padding: 1.4rem 1.3rem;
+      }
+      .slides-container {
+        padding: 1.2rem 1.2rem 0.8rem;
+      }
+      .columns {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0.8rem;
+      }
+      .frame-header {
+        padding-inline: 0.9rem;
+      }
+      .frame {
+        border-radius: 1.1rem;
+      }
+      h1 {
+        font-size: 1.9rem;
+      }
+      .subtitle {
+        font-size: 0.95rem;
+      }
+      .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .controls-right {
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame" aria-label="Præsentation: Overgang til ny PC">
+    <header class="frame-header">
+      <div class="frame-header-left">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>PC-migrering · Hurtig guide</span>
+      </div>
+      <div class="frame-header-right" aria-label="Tastaturgenveje">
+        <span>Navigation:</span>
+        <span class="kbd">←</span>
+        <span class="kbd">→</span>
+        <span class="kbd">Space</span>
+      </div>
+    </header>
+
+    <main class="slides-container">
+      <div class="slides-viewport" id="slides-viewport">
+        <!-- Slide 1: Intro -->
+        <section class="slide active" data-index="0" aria-label="Introduktion">
+          <div class="slide-card">
+            <div class="eyebrow">💻 Overgang til ny PC</div>
+            <h1>Hvad skal kopieres, før du afleverer den gamle?</h1>
+            <p class="subtitle">
+              Kort gennemgang af de vigtigste mapper, skjulte data og småting, som er
+              værd at få med, når du flytter til en <span class="highlight">ny arbejds-PC</span>.
+            </p>
+
+            <div class="columns" style="margin-top: 1.4rem;">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">👤 Brugerprofilen</div>
+                      <div class="list-muted">Konfigurationer, ssh-nøgler, personlige scripts m.m.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🗂️ AppData</div>
+                      <div class="list-muted">Programspecifikke indstillinger og cache.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">📁 Synlige mapper</div>
+                      <div class="list-muted">Skrivebord, Dokumenter, Downloads m.m.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🌐 Browser &amp; automatik</div>
+                      <div class="list-muted">Passwords, bookmarks og planlagte Tasks.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="code-chip">
+                  <span class="dot"></span>
+                  <span>%USERPROFILE%</span>
+                  <span>er der, det meste starter</span>
+                </div>
+                <div class="pill-row">
+                  <span class="pill">Windows 10/11</span>
+                  <span class="pill">Kontor-miljø</span>
+                  <span class="pill">"Bedre-sikker-end-sorry"-liste</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 2: %USERPROFILE% -->
+        <section class="slide" data-index="1" aria-label="Brugerprofil">
+          <div class="slide-card">
+            <div class="eyebrow">👤 Kerneområde</div>
+            <h2>%USERPROFILE% – alt det, du ikke vil miste</h2>
+            <p class="subtitle">
+              Tænk på <span class="highlight">%USERPROFILE%</span> som brugerens "hjemmemappe" – 
+              her ligger meget mere end Dokumenter og Skrivebord.
+            </p>
+
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">⚙️ Konfigurationsfiler</div>
+                      <div class="list-muted">SSH, Git, terminal m.m. – ofte gemt som skjulte filer og mapper.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🔐 SSH-nøgler</div>
+                      <div class="list-muted">Typisk under <code>.ssh</code>. Uundværlige til repos, servere, pipelines.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🧩 Personlige scripts &amp; tools</div>
+                      <div class="list-muted">Små hjælpe-scripts, aliaser, profiler osv.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="tag-grid">
+                  <div class="tag-card">
+                    <span class="tag-label">Sti</span>
+                    <span class="tag-main">%USERPROFILE%\</span>
+                    <span class="list-muted">F.eks. C:\\Users\\&lt;bruger&gt;</span>
+                  </div>
+                  <div class="tag-card">
+                    <span class="tag-label">Skjulte filer & mapper</span>
+                    <span class="tag-main">.ssh, .gitconfig, .wslconfig</span>
+                    <span class="list-muted">Husk at vise skjulte filer og mapper før kopiering.</span>
+                  </div>
+                  <div class="tag-card">
+                    <span class="tag-label">Vigtigt</span>
+                    <span class="tag-main">Mapper der starter med .</span>
+                    <span class="list-muted">Skjulte mapper i roden af %USERPROFILE% (fx .ssh, .config m.fl.) er ofte kritiske for dev-setup, nøgler og adgang.</span>
+                  </div>
+                  <div class="tag-card">
+                    <span class="tag-label">Tip</span>
+                    <span class="tag-main">Lav en ZIP</span>
+                    <span class="list-muted">Nem at flytte og gemme som backup.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 3: AppData -->
+        <section class="slide" data-index="2" aria-label="AppData">
+          <div class="slide-card">
+            <div class="eyebrow">🗂️ Programdata</div>
+            <h2>%USERPROFILE%\AppData – hvor programmerne gemmer sig</h2>
+            <p class="subtitle">
+              Mange applikationer gemmer konfiguration, profiler og cache i AppData.
+              Det er ofte her, forskellen mellem <span class="highlight">"alt virker"</span>
+              og "hvordan var det nu, jeg havde sat det op?" ligger.
+            </p>
+
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🔄 Roaming</div>
+                      <div class="list-muted">Indstillinger der følger brugeren – f.eks. VS Code, nogle browsere.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">💾 Local &amp; LocalLow</div>
+                      <div class="list-muted">Cache, større datafiler og sessions. Vigtigt for enkelte apps.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🧪 Eksempler</div>
+                      <div class="list-muted">SSH-agenter, terminalprofiler, værktøjs-licenser, plugin-settings.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="note-box">
+                  <strong>Praktisk tilgang:</strong><br />
+                  Kopiér AppData selektivt:<br />
+                  – Fokusér på programmer, du faktisk bruger dagligt.<br />
+                  – Undgå at slæbe kæmpe cache-mapper unødigt med.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 4: Synlige mapper -->
+        <section class="slide" data-index="3" aria-label="Skrivebord og dokumenter">
+          <div class="slide-card">
+            <div class="eyebrow">📁 Det synlige lag</div>
+            <h2>Skrivebord, Dokumenter og Downloads</h2>
+            <p class="subtitle">
+              De åbenlyse mapper – men ofte også der, hvor 
+              <span class="highlight">vigtige filer midlertidigt "parkeres"</span> og derefter bliver glemt.
+            </p>
+
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">%USERPROFILE%\Desktop</div>
+                      <div class="list-muted">Genveje, løse filer, ting der lå i "midlertidigt"-mappen for 2 år siden.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">%USERPROFILE%\Documents</div>
+                      <div class="list-muted">Lokale projekter, rapporter, noter, eksport-filer fra værktøjer.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">%USERPROFILE%\Downloads</div>
+                      <div class="list-muted">Installere, eksportfiler, CSV/Excel, gamle logs – ryd op og tag det vigtige.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="tag-grid">
+                  <div class="tag-card">
+                    <span class="tag-label">Tip</span>
+                    <span class="tag-main">Sorter efter dato</span>
+                    <span class="list-muted">Du kan overveje kun at kopiere de seneste filer (f.eks. fra det sidste år), hvis mappen er meget stor.</span>
+                  </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 5: Scheduled Tasks -->
+        <section class="slide" data-index="4" aria-label="Planlagte opgaver">
+          <div class="slide-card">
+            <div class="eyebrow">🤖 Automatisering</div>
+            <h2>Scheduled Tasks – dine usynlige hjælpe-robotter</h2>
+            <p class="subtitle">
+              Hvis du har automatiske scripts, backups eller oprydninger kørende, 
+              skal de <span class="highlight">genoprettes på den nye PC</span>.
+            </p>
+
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🛠️ Åbn Task Scheduler</div>
+                      <div class="list-muted">Kør <code>taskschd.msc</code> eller søg efter "Opgavestyring" i Start.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🔎 Find bruger-specifikke tasks</div>
+                      <div class="list-muted">Under din brugerkonto eller custom-folders, du selv har lavet.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">📤 Eksportér som XML</div>
+                      <div class="list-muted">Højreklik &rarr; Eksportér. Importér dem igen på den nye maskine.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="note-box">
+                  <strong>Husk også:</strong><br />
+                  – Scripts eller programmer, som tasks peger på, skal også med (f.eks. PowerShell-scripts).<br />
+                  – Tjek stier og credentials efter import på den nye PC.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 6: Browser data -->
+        <section class="slide" data-index="5" aria-label="Browserdata">
+          <div class="slide-card">
+            <div class="eyebrow">🌐 Browser</div>
+            <h2>Eksportér passwords, links og foldere i browseren</h2>
+            <p class="subtitle">
+              Browseren er ofte nøglen til <span class="highlight">intranetsites, portaler og dev-tools</span>.
+              Sørg for, at du kan logge ind og finde rundt efter skiftet.
+            </p>
+
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🔑 Passwords</div>
+                      <div class="list-muted">Eksportér til CSV hvor det er muligt, eller sørg for sync via konto (Edge/Chrome/Firefox).</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">⭐ Bookmarks &amp; foldere</div>
+                      <div class="list-muted">Eksportér som HTML eller brug sync, så struktur og links følger med.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🧑‍💻 Workspaces, profiler, dev-setup</div>
+                      <div class="list-muted">Evt. flere browser-profiler til forskellige kunder/miljøer.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="note-box">
+                  <strong>Sikkerhed:</strong><br />
+                  – Behandl eksport-filer med passwords som følsomme data.<br />
+                  – Slet CSV/HTML-filer, når de er importeret på den nye maskine.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 7: ZIP -->
+        <section class="slide" data-index="6" aria-label="Zip og overførsel">
+          <div class="slide-card">
+            <div class="eyebrow">📦 Effektiv overførsel</div>
+            <h2>📦 Brug ZIP – det går markant hurtigere</h2>
+            <p class="subtitle">
+              Når store mapper skal flyttes (f.eks. hele %USERPROFILE% eller projektsamlinger),
+              er det ofte <span class="highlight">hurtigere og mere stabilt</span> at pakke dem som arkiv først.
+            </p>
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">⚡ Færre filer = hurtigere kopi</div>
+                      <div class="list-muted">Tusindvis af små filer over netværk/USB tager længere tid end én samlet ZIP.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🧳 Nem backup</div>
+                      <div class="list-muted">Du har én samlet fil, som kan gemmes som sikkerhedskopi.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🔐 Mindre risiko for fejl</div>
+                      <div class="list-muted">Reducerer risikoen for at enkelte filer springes over.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <div class="note-box">
+                  <strong>Anbefaling:</strong><br />
+                  Højreklik → "Send til" → "ZIP-komprimeret mappe".<br />
+                  Pak først ud på den nye maskine, når kopieringen er færdig.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 8: Git -->
+        <section class="slide" data-index="7" aria-label="Git repositories">
+          <div class="slide-card">
+            <div class="eyebrow">🐙 Versionskontrol</div>
+            <h2>🐙 Git repositories – kopiér med omtanke</h2>
+            <p class="subtitle">
+              Det er som regel <span class="highlight">bedre at re-clone</span> repos på den nye maskine
+              end at kopiere hele mappen direkte.
+            </p>
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">📜 Stephen’s PowerShell-script</div>
+                      <div class="list-muted">Stephen har et script, der dokumenterer alle lokale repos, så de nemt kan re-clones på den nye maskine.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🚨 Tjek lokale branches</div>
+                      <div class="list-muted">Kør <code>git branch</code> og sikre at ingen lokale branches mangler at blive pushet.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">☁️ Push alt til remote</div>
+                      <div class="list-muted">Sørg for at alle commits ligger på origin, før du lukker maskinen ned.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🔁 Re-clone på ny PC</div>
+                      <div class="list-muted">Renere setup, færre skjulte lokale artefakter.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 9: Tjekliste -->
+        <section class="slide" data-index="8" aria-label="Tjekliste">
+          <div class="slide-card">
+            <div class="eyebrow">✅ Opsummering</div>
+            <h2>Minimal smerte ved PC-skift – din tjekliste</h2>
+            <p class="subtitle">
+              Brug denne liste som mental model – eller helt konkret før aflevering af den gamle maskine.
+            </p>
+
+            <div class="columns">
+              <div>
+                <ul class="list">
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">👤 1. Gennemgå %USERPROFILE%</div>
+                      <div class="list-muted">Inkl. skjulte filer <em>og</em> mapper (især dot-mapper som <code>.ssh</code>, <code>.config</code>), personlige scripts og konfigs.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🗂️ 2. Gennemgå AppData</div>
+                      <div class="list-muted">Roaming + relevante Local/LocalLow-mapper for de apps du bruger.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">📁 3. Synlige mapper</div>
+                      <div class="list-muted">Desktop, Documents, Downloads – tag det, der er vigtigt, og overvej oprydning.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🤖 4. Scheduled Tasks</div>
+                      <div class="list-muted">taskschd.msc → eksportér/importér XML + husk scripts og stier.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🌐 5. Browser-data</div>
+                      <div class="list-muted">Passwords, bookmarks/foldere, profiler og workspaces. Slet eksportfiler efter import.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">📦 6. ZIP før overførsel</div>
+                      <div class="list-muted">Store mapper med mange filer kan ofte flyttes hurtigere som én ZIP og pakkes ud på den nye PC.</div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="list-bullet"></div>
+                    <div>
+                      <div class="list-strong">🐙 7. Git repos</div>
+                      <div class="list-muted">Sørg for at lokale branches/commits er pushet, dokumentér repos (Stephen’s script) og re-clone på ny maskine.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div class="note-box">
+                  <strong>Ekstra bonus:</strong><br />
+                  – Brug anledningen til at rydde op i gamle projekter.<br />
+                  – Lav gerne en lille fælles-checkliste til teamet.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="controls-row" aria-label="Præsentationskontrol">
+        <div class="controls-left">
+          <span class="step-pill" id="step-pill">SLIDE 1 · INTRO</span>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="controls-right">
+          <span class="footer-hint">Brug piletasterne eller Space til at skifte slide</span>
+          <div class="dot-row" id="dot-row" aria-hidden="true"></div>
+          <button class="btn" id="prev-btn" type="button">
+            <span class="btn-icon">←</span>
+            <span>Forrige</span>
+          </button>
+          <button class="btn btn-primary" id="next-btn" type="button">
+            <span>Næste</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const total = slides.length;
+      let index = 0;
+      let animating = false;
+
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const progressBar = document.getElementById('progress-bar');
+      const stepPill = document.getElementById('step-pill');
+      const dotRow = document.getElementById('dot-row');
+
+      const stepLabels = [
+        'SLIDE 1 · INTRO',
+        'SLIDE 2 · %USERPROFILE%',
+        'SLIDE 3 · APPDATA',
+        'SLIDE 4 · SYNLIGE MAPPER',
+        'SLIDE 5 · SCHEDULED TASKS',
+        'SLIDE 6 · BROWSERE',
+        'SLIDE 7 · ZIP & OVERFØRSEL',
+        'SLIDE 8 · GIT REPOS',
+        'SLIDE 9 · TJEKLISTE'
+      ];
+
+      // Build dots
+      slides.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot-nav' + (i === 0 ? ' active' : '');
+        dot.dataset.index = String(i);
+        dotRow.appendChild(dot);
+      });
+
+      const dots = Array.from(dotRow.querySelectorAll('.dot-nav'));
+
+      function updateUI() {
+        const progress = (index + 1) / total;
+        progressBar.style.transform = `scaleX(${progress})`;
+        stepPill.textContent = stepLabels[index] || `SLIDE ${index + 1}`;
+
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === total - 1;
+      }
+
+      function goToSlide(target) {
+        if (target === index || target < 0 || target >= total || animating) return;
+
+        const direction = target > index ? 'right' : 'left';
+        const current = slides[index];
+        const next = slides[target];
+
+        animating = true;
+        current.classList.remove('active');
+        current.classList.add(direction === 'right' ? 'exiting-left' : 'exiting-right');
+
+        next.classList.add('active');
+
+        setTimeout(() => {
+          current.classList.remove('exiting-left', 'exiting-right');
+          index = target;
+          updateUI();
+          animating = false;
+        }, 420);
+      }
+
+      function next() {
+        if (index < total - 1) goToSlide(index + 1);
+      }
+
+      function prev() {
+        if (index > 0) goToSlide(index - 1);
+      }
+
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+
+      dotRow.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t instanceof HTMLElement && t.classList.contains('dot-nav')) {
+          const i = Number(t.dataset.index || '0');
+          goToSlide(i);
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+          e.preventDefault();
+          next();
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          prev();
+        } else if (e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          next();
+        }
+      });
+
+      // Initial UI
+      updateUI();
+    })();
+  </script>
+</body>
+</html>
