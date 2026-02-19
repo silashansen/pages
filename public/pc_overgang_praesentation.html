@@ -288,6 +288,14 @@
       margin-top: 0.8rem;
     }
 
+    .tag-grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .tag-card-span {
+      grid-column: 1 / -1;
+    }
+
     .tag-card {
       padding: 0.7rem 0.9rem;
       border-radius: 0.9rem;
@@ -621,6 +629,9 @@
       .columns {
         grid-template-columns: minmax(0, 1fr);
       }
+      .tag-grid-3 {
+        grid-template-columns: minmax(0, 1fr);
+      }
       .deadline-splash {
         flex-direction: column;
         align-items: flex-start;
@@ -859,7 +870,7 @@
               </div>
 
               <div>
-                <div class="tag-grid">
+                <div class="tag-grid tag-grid-3">
                   <div class="tag-card">
                     <span class="tag-label">Sti</span>
                     <span class="tag-main">%USERPROFILE%\</span>
@@ -867,22 +878,22 @@
                   </div>
                   <div class="tag-card">
                     <span class="tag-label">Skjulte filer & mapper</span>
-                    <span class="tag-main">.ssh, .gitconfig, .wslconfig</span>
+                    <span class="tag-main">.ssh, .gitconfig, .wslconfig, .kube</span>
                     <span class="list-muted">Husk at vise skjulte filer og mapper før kopiering.</span>
                   </div>
                   <div class="tag-card">
+                    <span class="tag-label">Tip</span>
+                    <span class="tag-main">Lav en ZIP</span>
+                    <span class="list-muted">Nem at flytte og gemme på H: som backup/mellemstation.</span>
+                  </div>
+                  <div class="tag-card tag-card-span">
                     <span class="tag-label">Vigtigt</span>
                     <span class="tag-main">Mapper der starter med .</span>
-                    <span class="list-muted">Skjulte mapper i roden af %USERPROFILE% (fx .ssh, .config m.fl.) er ofte kritiske for dev-setup, nøgler og adgang.</span>
+                    <span class="list-muted">Skjulte mapper i roden af %USERPROFILE% (fx .ssh, .kube, .config m.fl.) er ofte kritiske for dev-setup, nøgler og adgang (Kubernetes bruger typisk <code>%USERPROFILE%\\.kube\\config</code>).</span>
                   </div>
-                   <div class="tag-card">
-                     <span class="tag-label">Tip</span>
-                     <span class="tag-main">Lav en ZIP</span>
-                      <span class="list-muted">Nem at flytte og gemme på H: som backup/mellemstation.</span>
-                   </div>
-                 </div>
-               </div>
-             </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
