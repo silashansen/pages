@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiro &amp; Agentisk AI — Trænings- og demo-session</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --fvst-navy: #002B45;
+    --fvst-blue: #004976;
+    --fvst-mid: #1A6FA0;
+    --fvst-light: #E8F1F8;
+    --fvst-accent: #C8102E;
+    --fvst-gold: #D4A843;
+    --fvst-warm: #F5F0E8;
+    --fvst-text: #1A1A1A;
+    --fvst-muted: #5A6A78;
+    --fvst-white: #FFFFFF;
+    --fvst-border: #D0D8E0;
+    --slide-pad: 80px;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%; width: 100%;
+    overflow: hidden;
+    background: var(--fvst-navy);
+    font-family: 'Source Sans 3', -apple-system, sans-serif;
+  }
+
+  /* ── slide container ── */
+  .deck {
+    position: relative;
+    width: 100%; height: 100%;
+  }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: var(--slide-pad);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .45s ease, transform .45s ease;
+    transform: translateX(40px);
+    overflow-y: auto;
+  }
+  .slide.active {
+    opacity: 1; pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  /* ── backgrounds ── */
+  .bg-navy   { background: var(--fvst-navy); color: var(--fvst-white); }
+  .bg-white  { background: var(--fvst-white); color: var(--fvst-text); }
+  .bg-light  { background: var(--fvst-light); color: var(--fvst-text); }
+  .bg-warm   { background: var(--fvst-warm); color: var(--fvst-text); }
+  .bg-blue   { background: var(--fvst-blue); color: var(--fvst-white); }
+  .bg-grad   { background: linear-gradient(135deg, var(--fvst-navy) 0%, var(--fvst-blue) 100%); color: var(--fvst-white); }
+
+  /* ── typography ── */
+  h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 3.4rem; font-weight: 400;
+    line-height: 1.15; margin-bottom: .5em;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2.4rem; font-weight: 400;
+    line-height: 1.2; margin-bottom: .6em;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 1.3rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: .6em; color: var(--fvst-mid);
+  }
+  .bg-navy h3, .bg-blue h3, .bg-grad h3 { color: var(--fvst-gold); }
+
+  p, li {
+    font-size: 1.25rem; line-height: 1.65;
+    max-width: 52em;
+  }
+  li { margin-bottom: .4em; }
+  ul { padding-left: 1.5em; }
+  li::marker { color: var(--fvst-mid); }
+  .bg-navy li::marker, .bg-blue li::marker, .bg-grad li::marker { color: var(--fvst-gold); }
+
+  .subtitle {
+    font-size: 1.45rem; font-weight: 300;
+    opacity: .85; margin-bottom: 1.8em;
+  }
+  .big-number {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 6rem; line-height: 1; color: var(--fvst-accent);
+    margin-bottom: .2em;
+  }
+  .bg-navy .big-number, .bg-blue .big-number, .bg-grad .big-number { color: var(--fvst-gold); }
+
+  .tag {
+    display: inline-block; padding: 4px 14px; border-radius: 4px;
+    font-size: .85rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; margin-bottom: 1.2em;
+  }
+  .tag-red   { background: var(--fvst-accent); color: #fff; }
+  .tag-blue  { background: var(--fvst-mid); color: #fff; }
+  .tag-gold  { background: var(--fvst-gold); color: var(--fvst-navy); }
+
+  /* ── grid layouts ── */
+  .cols { display: grid; gap: 40px; margin-top: 1.2em; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  
+  .card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px; padding: 28px 24px;
+  }
+  .bg-white .card, .bg-light .card, .bg-warm .card {
+    background: var(--fvst-white);
+    border-color: var(--fvst-border);
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .card h4 {
+    font-size: 1.15rem; font-weight: 700;
+    margin-bottom: .5em;
+  }
+  .card p, .card li { font-size: 1.05rem; }
+
+  .emoji-icon { font-size: 2rem; margin-bottom: .5em; display: block; }
+
+  /* ── timeline ── */
+  .timeline { list-style: none; padding: 0; margin-top: 1em; }
+  .timeline li {
+    display: grid; grid-template-columns: 120px 1fr;
+    gap: 20px; padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .bg-white .timeline li, .bg-light .timeline li, .bg-warm .timeline li {
+    border-color: var(--fvst-border);
+  }
+  .timeline .time {
+    font-weight: 700; font-size: 1.1rem;
+    color: var(--fvst-gold);
+  }
+  .bg-white .timeline .time, .bg-light .timeline .time, .bg-warm .timeline .time {
+    color: var(--fvst-accent);
+  }
+  .timeline .desc { font-size: 1.1rem; }
+
+  /* ── comparison table ── */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 30px; margin-top: 1.2em;
+  }
+  .compare-col {
+    padding: 32px; border-radius: 12px;
+  }
+  .compare-col h4 {
+    font-size: 1.4rem; font-weight: 700;
+    margin-bottom: .8em; display: flex; align-items: center; gap: 10px;
+  }
+  .compare .ide { background: rgba(0,73,118,.1); border: 2px solid var(--fvst-mid); }
+  .compare .cli { background: rgba(212,168,67,.08); border: 2px solid var(--fvst-gold); }
+
+  /* ── context window visual ── */
+  .ctx-bar {
+    width: 100%; height: 48px; border-radius: 8px;
+    background: rgba(255,255,255,.1); overflow: hidden;
+    margin: .8em 0; display: flex; position: relative;
+  }
+  .bg-white .ctx-bar, .bg-light .ctx-bar { background: #E0E6EC; }
+  .ctx-seg {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; font-weight: 600; color: #fff;
+  }
+  .ctx-sys { width: 15%; background: var(--fvst-accent); }
+  .ctx-code { width: 40%; background: var(--fvst-mid); }
+  .ctx-conv { width: 25%; background: var(--fvst-gold); color: var(--fvst-navy); }
+  .ctx-out { width: 20%; background: #6B8A5E; }
+
+  /* ── pricing ── */
+  .pricing-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-top: 1em; }
+  .price-card {
+    border-radius: 12px; padding: 24px 20px; text-align: center;
+    border: 2px solid rgba(255,255,255,.15);
+  }
+  .bg-white .price-card, .bg-light .price-card {
+    border-color: var(--fvst-border); background: var(--fvst-white);
+  }
+  .price-card .tier { font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3em; }
+  .price-card .amount {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem; margin-bottom: .3em;
+  }
+  .price-card .credits { font-size: .95rem; opacity: .8; }
+  .price-card.highlight { border-color: var(--fvst-gold); background: rgba(212,168,67,.1); }
+
+  /* ── header strip ── */
+  .slide-header {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 6px; background: linear-gradient(90deg, var(--fvst-accent), var(--fvst-gold));
+  }
+
+  /* ── bottom bar / logo ── */
+  .slide-footer {
+    position: absolute; bottom: 24px; left: var(--slide-pad); right: var(--slide-pad);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .8rem; opacity: .5;
+  }
+  .slide-footer .org { font-weight: 600; }
+
+  /* ── nav controls ── */
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 56px; background: rgba(0,20,35,.92);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    z-index: 100; border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .nav-bar button {
+    background: rgba(255,255,255,.1); border: none;
+    color: #fff; padding: 8px 18px; border-radius: 6px;
+    font-size: .9rem; font-weight: 600; cursor: pointer;
+    transition: background .2s;
+  }
+  .nav-bar button:hover { background: rgba(255,255,255,.2); }
+  .nav-bar .counter {
+    color: rgba(255,255,255,.5); font-size: .85rem;
+    min-width: 60px; text-align: center;
+  }
+
+  /* ── progress bar ── */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--fvst-gold); z-index: 101;
+    transition: width .3s ease;
+  }
+
+  /* ── security shield icon ── */
+  .shield { display: inline-flex; align-items: center; gap: 8px; }
+  .shield::before { content: "🛡️"; font-size: 1.4em; }
+
+  /* ── key-hint ── */
+  kbd {
+    display: inline-block; padding: 2px 8px;
+    background: rgba(255,255,255,.12); border-radius: 4px;
+    font-family: 'Source Sans 3', monospace; font-size: .85em;
+  }
+  .bg-white kbd, .bg-light kbd, .bg-warm kbd {
+    background: #E0E6EC; color: var(--fvst-text);
+  }
+
+  /* ── quote block ── */
+  blockquote {
+    border-left: 4px solid var(--fvst-gold);
+    padding: 12px 24px; margin: 1em 0;
+    font-style: italic; font-size: 1.15rem;
+    opacity: .9;
+  }
+
+  /* ── code block ── */
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    background: rgba(0,0,0,.15); padding: 2px 8px;
+    border-radius: 4px; font-size: .95em;
+  }
+  .bg-white code, .bg-light code, .bg-warm code {
+    background: #E8EDF2;
+  }
+
+  .highlight-box {
+    background: rgba(200, 16, 46, .08);
+    border: 1px solid rgba(200, 16, 46, .2);
+    border-radius: 10px; padding: 20px 24px;
+    margin-top: 1em;
+  }
+  .bg-navy .highlight-box, .bg-blue .highlight-box, .bg-grad .highlight-box {
+    background: rgba(212,168,67,.1);
+    border-color: rgba(212,168,67,.25);
+  }
+
+  .two-part { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  
+  .flow-arrow { text-align: center; font-size: 2rem; margin: .6em 0; opacity: .5; }
+
+  @media (max-width: 1100px) {
+    :root { --slide-pad: 40px; }
+    h1 { font-size: 2.4rem; }
+    h2 { font-size: 1.8rem; }
+    .cols-2, .cols-3, .cols-4, .compare, .two-part, .pricing-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+<!-- ═══════════ SLIDE 0: TITLE ═══════════ -->
+<section class="slide bg-grad active" data-index="0">
+  <div class="slide-header"></div>
+  <span class="tag tag-gold">Trænings- &amp; demo-session · 2 timer</span>
+  <h1>Amazon Kiro<br>&amp; Agentisk AI</h1>
+  <p class="subtitle">Agentisk AI i praksis.<br>Hvad det betyder for vores team, vores kodebase og vores hverdag.</p>
+  <p style="margin-top:2em; font-size:1rem; opacity:.55">Brug <kbd>←</kbd> <kbd>→</kbd> piletaster eller knapperne herunder for at navigere</p>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span>Marts 2026</span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 1: AGENDA ═══════════ -->
+<section class="slide bg-white" data-index="1">
+  <div class="slide-header"></div>
+  <h3>Agenda</h3>
+  <h2>Hvad vi gennemgår i dag</h2>
+  <ul class="timeline">
+    <li><span class="time">09:00</span><span class="desc"><strong>1. Adgangstjek</strong> — Har alle adgang til Kiro?</span></li>
+    <li><span class="time">09:10</span><span class="desc"><strong>2. Hvad er Kiro &amp; Agentisk AI?</strong> — Begreber og arkitektur</span></li>
+    <li><span class="time">09:25</span><span class="desc"><strong>3. Egnede opgaver</strong> — Hvornår giver det mening at bruge Kiro?</span></li>
+    <li><span class="time">09:40</span><span class="desc"><strong>4. IDE vs. CLI</strong> — To måder at arbejde med Kiro</span></li>
+    <li><span class="time">09:55</span><span class="desc"><strong>5. Tool Use</strong> — Og hvorfor det ændrede alt</span></li>
+    <li><span class="time">10:10</span><span class="desc"><strong>— Pause —</strong></span></li>
+    <li><span class="time">10:20</span><span class="desc"><strong>6. Context Window</strong> — Hvad det er, og hvorfor det er vigtigt</span></li>
+    <li><span class="time">10:35</span><span class="desc"><strong>7. Sikkerhed &amp; Guardrails</strong> — Data, compliance og kontrol</span></li>
+    <li><span class="time">10:50</span><span class="desc"><strong>8. Live Demo</strong> — Hands-on med Kiro</span></li>
+    <li><span class="time">11:00</span><span class="desc"><strong>Afslutning &amp; spørgsmål</strong></span></li>
+  </ul>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 2: ADGANGSTJEK ═══════════ -->
+<section class="slide bg-navy" data-index="2">
+  <div class="slide-header"></div>
+  <div class="big-number">01</div>
+  <h2>Har alle adgang til Kiro?</h2>
+  <p class="subtitle">Lad os sikre, at alle er klar inden vi går videre.</p>
+  <div class="cols cols-2" style="margin-top:1em">
+    <div class="card">
+      <span class="emoji-icon">🔑</span>
+      <h4>Login-metode</h4>
+      <ul>
+        <li><strong>AWS IAM Identity Center (SSO)</strong> — vores login-metode</li>
+      </ul>
+      <p style="margin-top:.8em; font-size:.95rem; opacity:.7">Silas udsteder subscriptions. Kontakt ham hvis du mangler adgang.</p>
+      <p style="margin-top:.5em; font-size:.95rem; opacity:.7">Vores subscription kører i <strong>EU (eu-central-1)</strong>.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">💳</span>
+      <h4>Priser (pr. bruger/md.)</h4>
+      <div class="pricing-grid" style="grid-template-columns:1fr 1fr 1fr; margin-top:.6em">
+        <div class="price-card highlight"><div class="tier">Pro</div><div class="amount">$20</div><div class="credits">1.000 credits</div></div>
+        <div class="price-card"><div class="tier">Pro+</div><div class="amount">$40</div><div class="credits">2.000 credits</div></div>
+        <div class="price-card"><div class="tier">Power</div><div class="amount">$200</div><div class="credits">10.000 credits</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:1.5em">
+    <strong>👉 Hands-on:</strong> Åbn <code>kiro.dev</code> og log ind nu. Bekræft at du kan se velkomstsiden.
+  </div>
+  <div class="highlight-box" style="margin-top:.8em">
+    <strong>📊 Hold øje med dit credit-forbrug!</strong> Vi vil gerne sikre at alle er på den subscription-tier der passer den enkelte. Giv besked til Silas hvis du løber tør for credits eller har brug for en opgradering.
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 3: HVAD ER KIRO ═══════════ -->
+<section class="slide bg-white" data-index="3">
+  <div class="slide-header"></div>
+  <div class="big-number">02</div>
+  <h2>Hvad er Kiro &amp; Agentisk AI?</h2>
+  <div class="two-part">
+    <div>
+      <h3 style="color:var(--fvst-accent)">Kiro kort fortalt</h3>
+      <p>Kiro er et <strong>agentisk AI IDE</strong> fra AWS, bygget på Code OSS (VS Code-fundament). Det er ikke bare auto-complete — det er en AI-agent der kan planlægge, analysere, skrive kode, køre tests og dokumentere.</p>
+      <p style="margin-top:.8em">Kiro bruger <strong>Claude Opus 4.6</strong> (Anthropic) som vores primære model.</p>
+      <p style="margin-top:.8em">Kiro er <strong>cloud-agnostisk</strong> — det virker med enhver tech-stack og enhver cloud-provider.</p>
+    </div>
+    <div>
+      <h3 style="color:var(--fvst-accent)">Det store skifte</h3>
+      <div style="border-radius:12px; padding:24px; background:rgba(200,16,46,.06); border:1px solid rgba(200,16,46,.15); margin-bottom:1em">
+        <h4 style="font-size:1.2rem; color:var(--fvst-muted); margin-bottom:.5em">🔇 ChatGPT-æraen (2022–2024)</h4>
+        <p>AI som <strong>samtalepartner</strong>. Du stillede spørgsmål, fik tekst tilbage, og copy-pastede selv. Du var mellemmanden.</p>
+        <p style="margin-top:.4em; font-style:italic; opacity:.7">"Kan du skrive en funktion der…" → kopier → indsæt → ret fejl manuelt → spørg igen</p>
+      </div>
+      <div class="flow-arrow" style="font-size:2.5rem; margin:.3em 0">⚡</div>
+      <div style="border-radius:12px; padding:24px; background:rgba(200,16,46,.06); border:2px solid var(--fvst-accent)">
+        <h4 style="font-size:1.2rem; color:var(--fvst-accent); margin-bottom:.5em">🔊 Agentisk AI (2025→)</h4>
+        <p>AI som <strong>autonom aktør</strong>. Den læser din kode, skriver filer, kører kommandoer, opdager fejl og retter dem — selv.</p>
+        <p style="margin-top:.4em; font-weight:700">"Tilføj validering på dette endpoint" → Kiro analyserer → implementerer → tester → done.</p>
+      </div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:1.2em">
+    <strong>Paradigmeskiftet:</strong> AI gik fra at <em>snakke om</em> kode til at <em>skrive og køre</em> kode. Det er forskellen mellem en rådgiver og en medarbejder.
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 5: EGNEDE OPGAVER ═══════════ -->
+<section class="slide bg-navy" data-index="4">
+  <div class="slide-header"></div>
+  <div class="big-number">03</div>
+  <h2>Hvilke opgaver er egnede til Kiro?</h2>
+  <p class="subtitle">Tænk på det som en junior-senior skala: hvornår er AI en god co-pilot?</p>
+  <div class="cols cols-2" style="margin-top:1em">
+    <div class="card">
+      <span class="emoji-icon">✅</span>
+      <h4>Gode kandidater</h4>
+      <ul>
+        <li>Boilerplate-kode og CRUD-operationer</li>
+        <li>Enhedstests og integrationstests</li>
+        <li>Dokumentation og README-filer</li>
+        <li>Refaktorering af legacy-kode</li>
+        <li>Fejlsøgning med log-analyse</li>
+        <li>Migration af konfigurationer (fx IaC)</li>
+        <li>API-integration og client-generering</li>
+        <li>Database-skemaændringer og migrationer</li>
+        <li>Kode-reviews og kvalitetstjek</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">⚠️</span>
+      <h4>Kræver ekstra opmærksomhed</h4>
+      <ul>
+        <li>Sikkerhedskritisk logik (autentificering, kryptering)</li>
+        <li>Kompleks forretningslogik med skjulte regler</li>
+        <li>Performance-kritisk kode (timing, concurrency)</li>
+        <li>Arkitektur-beslutninger i store systemer</li>
+        <li>Kode der interagerer med ukendte legacy-API'er</li>
+      </ul>
+      <div class="highlight-box" style="margin-top:1em">
+        <strong>Tommelfingerregel:</strong> Jo mere kontekst Kiro har, jo bedre resultat. Legacy-kode kræver god spec og klare instrukser.
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 6: LEGACY FOKUS ═══════════ -->
+<section class="slide bg-warm" data-index="5">
+  <div class="slide-header"></div>
+  <h3>Specielt for os</h3>
+  <h2>Kiro i legacy-kodebaser</h2>
+  <p>Vi arbejder meget med eksisterende systemer. Her er Kiro særligt nyttig:</p>
+  <div class="cols cols-3" style="margin-top:1.2em">
+    <div class="card">
+      <span class="emoji-icon">🔍</span>
+      <h4>Forstå kodebasen</h4>
+      <p>Bed Kiro analysere og dokumentere eksisterende kode. "Forklar hvad denne service gør" er et fantastisk startsted.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">🧪</span>
+      <h4>Tilføj tests bagefter</h4>
+      <p>Legacy-kode mangler ofte tests. Kiro kan generere tests baseret på specs og eksisterende adfærd.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">🔄</span>
+      <h4>Inkrementel refaktorering</h4>
+      <p>Spec-drevet tilgang sikrer at refaktorering sker skridt for skridt med klare acceptance criteria.</p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 7: IDE vs CLI ═══════════ -->
+<section class="slide bg-white" data-index="6">
+  <div class="slide-header"></div>
+  <div class="big-number">04</div>
+  <h2>IDE vs. CLI</h2>
+  <p class="subtitle">Kiro tilbyder to måder at arbejde — vælg den der passer til opgaven.</p>
+  <div class="compare">
+    <div class="compare-col ide">
+      <h4>🖥️ Kiro IDE</h4>
+      <ul>
+        <li>Visuel editor (VS Code-baseret)</li>
+        <li>Spec-drevet workflow med UI</li>
+        <li>Agent Hooks (automatiserede triggers)</li>
+        <li>Kiro Powers (plugins on-demand)</li>
+        <li>Multimodal input (billeder, diagrammer)</li>
+        <li>Supervised + Autopilot modes</li>
+      </ul>
+      <p style="margin-top:1em"><strong>Bedst til:</strong> Feature-udvikling, spec-arbejde, visuelt review af ændringer, komplekse projekter.</p>
+    </div>
+    <div class="compare-col cli">
+      <h4>⌨️ Kiro CLI</h4>
+      <ul>
+        <li>Terminal-baseret, interaktiv loop</li>
+        <li>Fungerer over SSH</li>
+        <li>Hurtig fejlsøgning og bug-fixing</li>
+        <li>Workflow-automatisering</li>
+        <li>Pipeline-integration</li>
+        <li>God til remote-servere</li>
+      </ul>
+      <p style="margin-top:1em"><strong>Bedst til:</strong> Hurtige opgaver, server-debugging, CI/CD-integration, automatisering i scripts.</p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 8: TOOL USE ═══════════ -->
+<section class="slide bg-grad" data-index="7">
+  <div class="slide-header"></div>
+  <div class="big-number">05</div>
+  <h2>Tool Use — og hvorfor<br>det ændrede alt</h2>
+  <p class="subtitle">Det øjeblik AI gik fra at snakke om kode til at skrive og køre den.</p>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 9: TOOL USE FORKLARING ═══════════ -->
+<section class="slide bg-white" data-index="8">
+  <div class="slide-header"></div>
+  <h3>Tool Use</h3>
+  <h2>Før og efter tools</h2>
+  <div class="two-part">
+    <div>
+      <h4 style="color:var(--fvst-muted); font-size:1.2rem; margin-bottom:.8em">🔇 Uden tools (ChatGPT-æraen)</h4>
+      <p>AI'en kunne kun producere tekst. Den kunne <em>foreslå</em> kode, men den kunne ikke:</p>
+      <ul style="margin-top:.6em">
+        <li>Læse filer i dit projekt</li>
+        <li>Skrive eller redigere filer</li>
+        <li>Køre kommandoer i terminalen</li>
+        <li>Kalde API'er eller databaser</li>
+        <li>Verificere om koden virker</li>
+      </ul>
+      <p style="margin-top:.8em">Du var copy-paste-mellemmand.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--fvst-accent); font-size:1.2rem; margin-bottom:.8em">🔊 Med tools (den agentiske æra)</h4>
+      <p>AI'en kan nu <strong>handle</strong>. Den har adgang til værktøjer:</p>
+      <ul style="margin-top:.6em">
+        <li><strong>File Read/Write</strong> — læs og skriv filer</li>
+        <li><strong>Terminal/Bash</strong> — kør kommandoer</li>
+        <li><strong>Web Search</strong> — slå ting op</li>
+        <li><strong>MCP Servers</strong> — integrer med eksterne systemer</li>
+        <li><strong>Kiro Powers</strong> — on-demand ekspertise</li>
+      </ul>
+      <p style="margin-top:.8em"><strong>AI'en planlægger → handler → inspicerer → retter.</strong></p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 10: MCP ═══════════ -->
+<section class="slide bg-light" data-index="9">
+  <div class="slide-header"></div>
+  <h3>Tool Use</h3>
+  <h2>MCP — Model Context Protocol</h2>
+  <p>MCP er en <strong>åben standard</strong> der gør det muligt for AI-agenter at forbinde til eksterne systemer via en universel protokol — i stedet for custom-integrationer per system.</p>
+  <div class="cols cols-3" style="margin-top:1.2em">
+    <div class="card">
+      <span class="emoji-icon">🗄️</span>
+      <h4>Databaser</h4>
+      <p>Kør queries, inspicér skemaer, generér migrationer direkte fra Kiro.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">☁️</span>
+      <h4>Cloud &amp; Infra</h4>
+      <p>AWS IAM Policy Autopilot, Terraform, deployment-tools som Kiro Powers.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">🔗</span>
+      <h4>Tredjeparter</h4>
+      <p>Stripe, Figma, Postman, GitHub — alt eksponeret via MCP-servere.</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:1.5em">
+    <strong>Kiro Powers</strong> loader tools dynamisk og on-demand — i stedet for at fylde kontekstvinduet fra start. Nævn "database" og det rette MCP-værktøj aktiveres automatisk.
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 11: CONTEXT WINDOW ═══════════ -->
+<section class="slide bg-navy" data-index="10">
+  <div class="slide-header"></div>
+  <div class="big-number">06</div>
+  <h2>Context Window</h2>
+  <p class="subtitle">AI'ens "arbejdshukommelse" — og den vigtigste begrænsning at forstå.</p>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 12: CONTEXT FORKLARING ═══════════ -->
+<section class="slide bg-white" data-index="11">
+  <div class="slide-header"></div>
+  <h3>Context Window</h3>
+  <h2>Hvad er det egentlig?</h2>
+  <p>Tænk på context window som AI'ens <strong>skrivebord</strong>. Alt den skal vide om for at hjælpe dig — skal ligge på skrivebordet på samme tid.</p>
+  <div style="margin:1.5em 0">
+    <p style="font-weight:700; margin-bottom:.5em">Sådan er et typisk context window fordelt:</p>
+    <div class="ctx-bar">
+      <div class="ctx-seg ctx-sys">System</div>
+      <div class="ctx-seg ctx-code">Kode &amp; filer</div>
+      <div class="ctx-seg ctx-conv">Samtale</div>
+      <div class="ctx-seg ctx-out">Output</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:.85rem; color:var(--fvst-muted)">
+      <span>Instrukser &amp; tools</span>
+      <span>Din kodebase-kontekst</span>
+      <span>Chat-historik</span>
+      <span>AI-svar</span>
+    </div>
+  </div>
+  <div class="cols cols-2" style="margin-top:1em">
+    <div class="card">
+      <h4>📏 Typiske størrelser</h4>
+      <p>Claude Sonnet 4: ~200K tokens ≈ ca. 150.000 ord ≈ ca. 500 sider tekst. Det lyder af meget — men tool-definitioner, spec-filer og kode fylder hurtigt.</p>
+    </div>
+    <div class="card">
+      <h4>💡 Praktiske konsekvenser</h4>
+      <p>Lange samtaler → AI'en "glemmer" starten. Mange åbne filer → mindre plads til resonering. Kiro håndterer dette via smart kontekst-styring og specs.</p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 13: CONTEXT ANALOGI ═══════════ -->
+<section class="slide bg-warm" data-index="12">
+  <div class="slide-header"></div>
+  <h3>Context Window</h3>
+  <h2>Den bedste analogi</h2>
+  <div class="two-part">
+    <div>
+      <p style="font-size:1.35rem; line-height:1.5">Forestil dig en <strong>utroligt kompetent konsulent</strong> der sidder ved dit skrivebord.</p>
+      <p style="margin-top:1em">Hun kan løse enhver opgave — men hun har <strong>ingen langtidshukommelse</strong>. Hver morgen starter hun forfra.</p>
+      <p style="margin-top:1em">Alt hun ved om projektet, skal du lægge foran hende <em>hver gang</em>. Specs, kode, noter, krav — alt.</p>
+      <p style="margin-top:1em">Jo bedre du forbereder det der ligger på skrivebordet, jo bedre arbejde leverer hun.</p>
+    </div>
+    <div>
+      <div class="card" style="background:var(--fvst-white)">
+        <h4>🎯 Derfor er specs vigtige</h4>
+        <p style="margin-top:.5em">Kiros spec-drevne tilgang løser netop dette: specs er en <strong>kompakt repræsentation af alt det vigtige</strong> — krav, design, plan — som altid er tilgængelig i context window.</p>
+        <p style="margin-top:.8em">Uden specs? Så skal agenten selv udlede al kontekst fra koden. Det bruger tokens og giver dårligere resultater.</p>
+      </div>
+      <div class="card" style="background:var(--fvst-white); margin-top:1em; border:2px solid var(--fvst-accent)">
+        <h4>🧹 Gem pointer — start frisk</h4>
+        <p style="margin-top:.5em">Når du når frem til vigtige beslutninger eller arkitektur-valg: <strong>skriv dem ned i et dokument</strong> (fx en markdown-fil i projektet).</p>
+        <p style="margin-top:.5em">Start derefter en <strong>ny, tom kontekst</strong> og referer til dokumentet. Så slipper du for al den støj fra blindgyder og forsøg der ikke ledte nogen steder.</p>
+        <p style="margin-top:.5em; font-weight:700">Ren kontekst = bedre resultater.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 14: SIKKERHED ═══════════ -->
+<section class="slide bg-navy" data-index="13">
+  <div class="slide-header"></div>
+  <div class="big-number">07</div>
+  <h2>Sikkerhed &amp; Guardrails</h2>
+  <p class="subtitle">Kontrol, datahåndtering og compliance — det vi skal have styr på.</p>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 15: SIKKERHED DETALJER ═══════════ -->
+<section class="slide bg-white" data-index="14">
+  <div class="slide-header"></div>
+  <h3>Sikkerhed</h3>
+  <h2>Datahåndtering og kontrol</h2>
+  <div class="cols cols-2">
+    <div>
+      <div class="card" style="margin-bottom:1em">
+        <span class="emoji-icon">🔒</span>
+        <h4>Data-beskyttelse</h4>
+        <ul>
+          <li>Via IAM Identity Center: <strong>ingen data bruges til modeltræning</strong></li>
+          <li>Kiro kører lokalt — din kode forbliver på din maskine</li>
+          <li>Kun prompts og kontekst sendes til AI-modellen</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1em">
+        <span class="emoji-icon">🛡️</span>
+        <h4>Operationelle guardrails</h4>
+        <ul>
+          <li><strong>Supervised Mode:</strong> gennemgå hver ændring før den gemmes</li>
+          <li><strong>Autopilot Mode:</strong> definer "Trusted Commands" — alt andet kræver godkendelse</li>
+        </ul>
+      </div>
+      <div class="highlight-box">
+        <strong>⚠️ Vigtigt for vores team:</strong> Vi arbejder med myndighedssystemer. Vær altid bevidst om hvad der sendes som kontekst — undgå persondata, nøgler og credentials i prompts.
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 16: BEST PRACTICES SIKKERHED ═══════════ -->
+<section class="slide bg-light" data-index="15">
+  <div class="slide-header"></div>
+  <h3>Sikkerhed</h3>
+  <h2>Best practices for vores team</h2>
+  <div class="cols cols-4">
+    <div class="card">
+      <span class="emoji-icon">1️⃣</span>
+      <h4>Brug Supervised Mode</h4>
+      <p>Altid for sikkerhedskritisk kode. Gennemgå ændringer inden de gemmes.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">2️⃣</span>
+      <h4>Undgå hemmeligheder</h4>
+      <p>Aldrig paste credentials, tokens, persondata eller API-nøgler i chat. Brug env-variabler.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">3️⃣</span>
+      <h4>Review altid output</h4>
+      <p>AI-genereret kode er et <em>forslag</em>. Samme review-standard som for menneskeskrevet kode.</p>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">4️⃣</span>
+      <h4>Spec-first tilgang</h4>
+      <p>Definer krav og regler i specs. Det giver AI'en klare rammer og mindsker hallucination.</p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 17: DEMO ═══════════ -->
+<section class="slide bg-grad" data-index="16">
+  <div class="slide-header"></div>
+  <div class="big-number">08</div>
+  <h2>Live Demo</h2>
+  <p class="subtitle">Lad os prøve det i praksis.</p>
+  <div class="cols cols-2" style="margin-top:1.5em">
+    <div class="card">
+      <h4>Demo: Byg &amp; test en mini-app</h4>
+      <p style="margin-bottom:.8em">Vi beder Kiro CLI om at:</p>
+      <ul>
+        <li><strong>1.</strong> Generere en simpel web-app (HTML + JS)</li>
+        <li><strong>2.</strong> Starte en lokal server</li>
+        <li><strong>3.</strong> Bruge <code>browser-agent</code> til at åbne appen og køre overfladiske UI-tests automatisk</li>
+      </ul>
+      <div class="highlight-box" style="margin-top:1em">
+        <strong>Pointe:</strong> Agenten skriver koden, starter serveren, og tester selv resultatet i en browser — uden at vi rører noget.
+      </div>
+    </div>
+    <div class="card">
+      <h4>Prøv selv!</h4>
+      <ul>
+        <li>Åbn et af jeres egne projekter</li>
+        <li>Start med en simpel opgave: "Tilføj en unit test for X"</li>
+        <li>Eller: "Forklar hvad denne fil gør"</li>
+        <li>Bemærk credit-forbruget i status-baren</li>
+      </ul>
+      <div class="highlight-box" style="margin-top:1em">
+        <strong>Tip:</strong> Start altid med små, afgrænsede opgaver. Byg tillid til værktøjet gradvist.
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span></span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 18: AFSLUTNING ═══════════ -->
+<section class="slide bg-navy" data-index="17">
+  <div class="slide-header"></div>
+  <h3>Afslutning</h3>
+  <h2>Hvad nu?</h2>
+  <div class="cols cols-3" style="margin-top:1em">
+    <div class="card">
+      <span class="emoji-icon">📚</span>
+      <h4>Resurser</h4>
+      <ul>
+        <li><strong>kiro.dev/docs</strong> — Fuld dokumentation</li>
+        <li><strong>kiro.dev/pricing</strong> — Priser og credits</li>
+        <li><strong>Kiro Discord</strong> — Community &amp; support</li>
+        <li><strong>GitHub: kirodotdev/Kiro</strong> — Issues &amp; feedback</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">🎯</span>
+      <h4>Næste skridt</h4>
+      <ul>
+        <li>Brug Kiro på en reel opgave denne uge</li>
+        <li>Del erfaringer på vores næste stand-up</li>
+        <li>Aftal en follow-up session om 2 uger</li>
+        <li>Overvej spec-drevet tilgang til næste feature</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="emoji-icon">💬</span>
+      <h4>Husk</h4>
+      <ul>
+        <li>AI er et værktøj — du er stadig ingeniøren</li>
+        <li>Review-kulturen ændrer sig ikke</li>
+        <li>Start småt, lær mønstrene</li>
+        <li>Stil spørgsmål — der er ingen dumme spørgsmål</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top:2em; text-align:center">
+    <h2 style="font-size:2rem">Spørgsmål?</h2>
+  </div>
+  <div class="slide-footer">
+    <span class="org">Styrelsen for Fødevarer, Landbrug og Fiskeri</span>
+    <span>Marts 2026</span>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<!-- ── Navigation ── -->
+<nav class="nav-bar">
+  <button id="btn-prev" onclick="go(-1)">← Forrige</button>
+  <span class="counter" id="counter">1 / 18</span>
+  <button id="btn-next" onclick="go(1)">Næste →</button>
+</nav>
+
+<script>
+(function(){
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+
+  function show(n) {
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((cur+1)/total*100) + '%';
+  }
+
+  function go(d) { show(cur + d); }
+  window.go = go;
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); show(0); }
+    if (e.key === 'End') { e.preventDefault(); show(total-1); }
+  });
+
+  // Touch support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.changedTouches[0].screenX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].screenX - touchX;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
